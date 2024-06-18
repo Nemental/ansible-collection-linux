@@ -1,0 +1,8 @@
+---
+
+- name: Manage packages
+  loop: "{{ packagemgmt_packages }}"
+  ansible.builtin.package:
+    name: "{{ item.name ~ (('=' ~ item.version) if item.version is defined else '') }}"
+    state: "{{ item.state | default('present') }}"
+    use: "{{ item.use | default(omit) }}"
