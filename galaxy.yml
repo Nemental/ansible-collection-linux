@@ -1,0 +1,13 @@
+---
+namespace: nemental
+name: linux
+version: 1.0.0
+readme: README.md
+authors:
+  - Nemental
+description: Everything I need to set up my Linux servers
+tags: ["application", "linux", "networking", "security", "tools"]
+repository: https://github.com/Nemental/ansible-collection-linux
+documentation: https://github.com/Nemental/ansible-collection-linux
+homepage: https://github.com/Nemental/ansible-collection-linux
+issues: https://github.com/Nemental/ansible-collection-linux/issues
