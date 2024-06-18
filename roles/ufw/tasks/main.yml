@@ -1,0 +1,23 @@
+---
+
+- name: Reset ufw
+  tags: [never, reset]
+  community.general.ufw:
+    state: reset
+
+- name: Manage ufw
+  tags: always
+  block:
+    - name: Manage UFW rules
+      loop: "{{ ufw_rules }}"
+      community.general.ufw:
+        port: "{{ item.port }}"
+        rule: "{{ item.rule | default('allow') }}"
+        comment: "{{ item.comment | default(omit) }}"
+        proto: "{{ item.proto | default(omit) }}"
+        src: "{{ item.src | default(omit) }}"
+
+    - name: Default deny all and enable ufw
+      community.general.ufw:
+        default: deny
+        state: enabled
