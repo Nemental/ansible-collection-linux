@@ -6,6 +6,9 @@ readme: README.md
 authors:
   - Nemental
 description: Everything I need to set up my Linux servers
+dependencies:
+  community.general: "9.1.0"
+  ansible.posix: "1.5.4"
 tags: ["application", "linux", "networking", "security", "tools"]
 repository: https://github.com/Nemental/ansible-collection-linux
 documentation: https://github.com/Nemental/ansible-collection-linux
