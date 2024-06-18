@@ -1,0 +1,28 @@
+---
+
+- name: Manage groups
+  loop: "{{ usermgmt_groups }}"
+  loop_control: {loop_var: group}
+  ansible.builtin.group:
+    name: "{{ group.name }}"
+    gid: "{{ group.gid | default(omit) }}"
+    state: "{{ group.state | default(omit) }}"
+
+- name: Manage users
+  loop: "{{ usermgmt_users }}"
+  loop_control: {loop_var: user}
+  ansible.builtin.user:
+    name: "{{ user.name }}"
+    password: "{{ user.password | default(omit) }}"
+    group: "{{ user.group | default(omit) }}"
+    groups: "{{ user.groups | default(omit) }}"
+    uid: "{{ user.uid | default(omit) }}"
+    shell: "{{ user.shell | default(omit) }}"
+    state: "{{ user.state | default(omit) }}"
+
+- name: Manage user authorized keys
+  loop: "{{ usermgmt_users }}"
+  loop_control: {loop_var: user}
+  ansible.posix.authorized_key:
+    user: "{{ user.name }}"
+    key: "{{ user.key }}"
