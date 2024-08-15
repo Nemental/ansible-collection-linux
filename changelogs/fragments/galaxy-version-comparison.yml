@@ -1,0 +1,2 @@
+trivial:
+  - compare version greater than instead of pinned
