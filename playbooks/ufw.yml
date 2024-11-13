@@ -1,5 +1,4 @@
 ---
-
 - name: Manage UFW
   hosts: all
   become: true

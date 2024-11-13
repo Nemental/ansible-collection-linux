@@ -1,5 +1,4 @@
 ---
-
 - name: Reset ufw
   tags: [never, reset]
   community.general.ufw:

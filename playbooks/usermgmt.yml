@@ -1,5 +1,4 @@
 ---
-
 - name: Manage users
   hosts: all
   become: true

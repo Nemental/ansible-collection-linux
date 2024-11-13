@@ -1,5 +1,4 @@
 ---
-
 - name: Manage packages
   loop: "{{ packagemgmt_packages }}"
   ansible.builtin.package:

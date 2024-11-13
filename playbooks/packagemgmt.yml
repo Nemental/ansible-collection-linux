@@ -1,5 +1,4 @@
 ---
-
 - name: Manage packages
   hosts: all
   become: true
