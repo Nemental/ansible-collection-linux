@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/Nemental/ansible-collection-linux/compare/1.0.0...1.0.1) (2024-11-13)
+
+
+### Performance Improvements
+
+* ci and lintings ([3c1fcf0](https://github.com/Nemental/ansible-collection-linux/commit/3c1fcf0eab00be2a3e4e43bba9e4e274b7e318ef))
+
 # 1.0.0 (2024-11-11)
 
 
