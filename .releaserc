@@ -5,10 +5,13 @@
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
     "@semantic-release/changelog",
-    "@semantic-release/github",
-    "@semantic-release/git",
     ["@semantic-release/exec", {
-      "verifyReleaseCmd": "echo \"version=${nextRelease.version}\" >> $GITHUB_OUTPUT"
+      "prepareCmd": "yq -i '.version = \"${nextRelease.version}\"' galaxy.yml",
+      "successCmd": "echo \"version=${nextRelease.version}\" >> $GITHUB_OUTPUT"
+    }],
+    "@semantic-release/github",
+    ["@semantic-release/git", {
+      "assets": ["CHANGELOG.md", "galaxy.yml"]
     }]
   ]
 }
