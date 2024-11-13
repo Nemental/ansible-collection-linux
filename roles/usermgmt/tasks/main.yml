@@ -1,7 +1,7 @@
 ---
 - name: Manage groups
   loop: "{{ usermgmt_groups }}"
-  loop_control: { loop_var: group }
+  loop_control: {loop_var: group}
   ansible.builtin.group:
     name: "{{ group.name }}"
     gid: "{{ group.gid | default(omit) }}"
@@ -9,7 +9,7 @@
 
 - name: Manage users
   loop: "{{ usermgmt_users }}"
-  loop_control: { loop_var: user }
+  loop_control: {loop_var: user}
   ansible.builtin.user:
     name: "{{ user.name }}"
     password: "{{ user.password | default(omit) }}"
@@ -21,7 +21,7 @@
 
 - name: Manage user authorized keys
   loop: "{{ usermgmt_users }}"
-  loop_control: { loop_var: user }
+  loop_control: {loop_var: user}
   ansible.posix.authorized_key:
     user: "{{ user.name }}"
     key: "{{ user.key }}"
