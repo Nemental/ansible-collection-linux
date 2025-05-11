@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/Nemental/ansible-collection-linux/compare/1.0.1...1.1.0) (2025-05-11)
+
+
+### Features
+
+* add diskmgmt role with playbook ([93ae7fc](https://github.com/Nemental/ansible-collection-linux/commit/93ae7fc9bac425343be5ecf86cc9d57245a32a57))
+
 ## [1.0.1](https://github.com/Nemental/ansible-collection-linux/compare/1.0.0...1.0.1) (2024-11-13)
 
 
