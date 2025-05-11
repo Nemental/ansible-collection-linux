@@ -3,6 +3,8 @@ diskmgmt_disks: []
   # - device: "/dev/sdb"
   #   path: "/mnt/storage"
   #   fstype: "ext4|xfs"
+  #   formtting_check: true
+  #   uuid: ""
   #   mount:
   #     opts: ""
   #     passno: ""
