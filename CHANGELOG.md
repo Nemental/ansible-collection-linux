@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/Nemental/ansible-collection-linux/compare/1.1.0...1.1.1) (2025-05-11)
+
+
+### Bug Fixes
+
+* **diskmgmt:** added formatting check and uuid disk arg ([fdf64a3](https://github.com/Nemental/ansible-collection-linux/commit/fdf64a34816c37fb35893422092b89ab77d8e491))
+
 # [1.1.0](https://github.com/Nemental/ansible-collection-linux/compare/1.0.1...1.1.0) (2025-05-11)
 
 
