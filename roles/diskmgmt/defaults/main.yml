@@ -1,0 +1,8 @@
+---
+diskmgmt_disks: []
+  # - device: "/dev/sdb"
+  #   path: "/mnt/storage"
+  #   fstype: "ext4|xfs"
+  #   mount:
+  #     opts: ""
+  #     passno: ""

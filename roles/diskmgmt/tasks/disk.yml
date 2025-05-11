@@ -1,0 +1,40 @@
+---
+- name: Ensure mount path exists
+  ansible.builtin.file:
+    path: "{{ disk.path }}"
+    state: directory
+    mode: '0755'
+    recurse: true
+
+- name: Check if disk is already formatted (JSON)
+  ansible.builtin.command: "lsblk -J -o NAME,FSTYPE {{ disk.device }}"
+  register: disk_info
+  changed_when: disk_info.rc != 0
+
+- name: Set disk formatted fact
+  ansible.builtin.set_fact:
+    diskmgmt_is_formatted: "{{ (disk_info.stdout | from_json).blockdevices[0].fstype is not none }}"
+
+- name: Format the disk if not formatted
+  community.general.filesystem:
+    fstype: "{{ disk.fstype }}"
+    device: "{{ disk.device }}"
+  when: not diskmgmt_is_formatted
+
+- name: Get disk UUID from JSON
+  ansible.builtin.command: "lsblk -J -o NAME,UUID {{ disk.device }}"
+  register: diskmgmt_uuid_info
+  changed_when: diskmgmt_uuid_info.rc != 0
+
+- name: Set UUID fact
+  ansible.builtin.set_fact:
+    diskmgmt_uuid: "{{ (diskmgmt_uuid_info.stdout | from_json).blockdevices[0].uuid }}"
+
+- name: Mount disk and add to fstab
+  ansible.posix.mount:
+    path: "{{ disk.path }}"
+    src: "UUID={{ diskmgmt_uuid }}"
+    fstype: "{{ disk.fstype }}"
+    opts: "{{ disk.mount.opts | default('defaults') }}"
+    passno: "{{ disk.mount.passno | default(omit) }}"
+    state: mounted

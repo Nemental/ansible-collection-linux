@@ -1,0 +1,6 @@
+---
+- name: Manage all defined disks
+  ansible.builtin.include_tasks: disk.yml
+  loop: "{{ diskmgmt_disks }}"
+  loop_control:
+    loop_var: disk

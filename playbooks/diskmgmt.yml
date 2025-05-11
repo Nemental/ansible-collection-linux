@@ -1,0 +1,6 @@
+---
+- name: Manage disks fs and mount
+  hosts: all
+  become: true
+  roles:
+    - role: diskmgmt
