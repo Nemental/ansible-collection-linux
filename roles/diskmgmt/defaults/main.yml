@@ -8,3 +8,8 @@ diskmgmt_disks: []
   #   mount:
   #     opts: ""
   #     passno: ""
+  # - src: "192.168.178.10:/mnt/tank/media"
+  #   path: /mnt/media
+  #   fstype: nfs
+  #   mount:
+  #     opts: "defaults,_netdev"

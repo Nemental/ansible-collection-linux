@@ -1,42 +1,45 @@
 ---
-- name: Ensure mount path exists
+- name: Ensure disk mount path exists
   ansible.builtin.file:
     path: "{{ disk.path }}"
     state: directory
     mode: '0755'
     recurse: true
 
-- name: Check for formatting disk if needed
-  when: disk.formatting_check | default(true)
+- name: Block device handling
+  when: disk.fstype != 'nfs'
   block:
-    - name: Check if disk is already formatted (JSON)
-      ansible.builtin.command: "lsblk -J -o NAME,FSTYPE {{ disk.device }}"
-      register: disk_info
-      changed_when: disk_info.rc != 0
+    - name: Check for formatting disk if needed
+      when: disk.formatting_check | default(true)
+      block:
+        - name: Check if disk is already formatted (JSON)
+          ansible.builtin.command: "lsblk -J -o NAME,FSTYPE {{ disk.device }}"
+          register: disk_info
+          changed_when: disk_info.rc != 0
 
-    - name: Set disk formatted fact
-      ansible.builtin.set_fact:
-        diskmgmt_is_formatted: "{{ (disk_info.stdout | from_json).blockdevices[0].fstype is not none }}"
+        - name: Set disk formatted fact
+          ansible.builtin.set_fact:
+            diskmgmt_is_formatted: "{{ (disk_info.stdout | from_json).blockdevices[0].fstype is not none }}"
 
-    - name: Confirm formatting of {{ disk.device }}
-      ansible.builtin.pause:
-        prompt: "The device {{ disk.device }} is unformatted and will be formatted as {{ disk.fstype }}. Type 'yes' to continue:"
-        echo: true
-      register: diskmgmt_confirm_format
-      when: not diskmgmt_is_formatted
+        - name: Confirm formatting of {{ disk.device }}
+          ansible.builtin.pause:
+            prompt: "The device {{ disk.device }} is unformatted and will be formatted as {{ disk.fstype }}. Type 'yes' to continue:"
+            echo: true
+          register: diskmgmt_confirm_format
+          when: not diskmgmt_is_formatted
 
-    - name: Fail if user did not confirm formatting
-      ansible.builtin.fail:
-        msg: "User did not confirm formatting of {{ disk.device }}."
-      when:
-        - not diskmgmt_is_formatted
-        - diskmgmt_confirm_format.user_input != "yes"
+        - name: Fail if user did not confirm formatting
+          ansible.builtin.fail:
+            msg: "User did not confirm formatting of {{ disk.device }}."
+          when:
+            - not diskmgmt_is_formatted
+            - diskmgmt_confirm_format.user_input != "yes"
 
-    - name: Format the disk if not formatted
-      community.general.filesystem:
-        fstype: "{{ disk.fstype }}"
-        device: "{{ disk.device }}"
-      when: not diskmgmt_is_formatted
+        - name: Format the disk if not formatted
+          community.general.filesystem:
+            fstype: "{{ disk.fstype }}"
+            device: "{{ disk.device }}"
+          when: not diskmgmt_is_formatted
 
     - name: Get disk UUID from JSON (only if not provided)
       ansible.builtin.command: "lsblk -J -o NAME,UUID {{ disk.device }}"
@@ -44,18 +47,21 @@
       changed_when: diskmgmt_uuid_info.rc != 0
       when: disk.uuid is not defined
 
-- name: Set disk UUID fact (from lsblk or manual)
-  ansible.builtin.set_fact:
-    diskmgmt_uuid: >-
-      {{ disk.uuid
-         if disk.uuid is defined
-         else (diskmgmt_uuid_info.stdout | from_json).blockdevices[0].uuid }}
+    - name: Set disk UUID fact (from lsblk or manual)
+      ansible.builtin.set_fact:
+        diskmgmt_uuid: >-
+          UUID={{ disk.uuid
+             if disk.uuid is defined
+             else (diskmgmt_uuid_info.stdout | from_json).blockdevices[0].uuid }}
 
-- name: Mount disk and add to fstab
+- name: Mount disk or NFS and add to fstab
   ansible.posix.mount:
     path: "{{ disk.path }}"
-    src: "UUID={{ diskmgmt_uuid }}"
+    src: "{{ disk.src if disk.fstype == 'nfs' else diskmgmt_uuid }}"
     fstype: "{{ disk.fstype }}"
-    opts: "{{ disk.mount.opts | default('defaults') }}"
+    opts: >-
+      {{ disk.mount.opts
+         if disk.mount.opts is defined
+         else ('defaults,_netdev' if disk.fstype == 'nfs' else 'defaults') }}
     passno: "{{ disk.mount.passno | default(omit) }}"
     state: mounted
