@@ -15,6 +15,7 @@
     password: "{{ user.password | default(omit) }}"
     group: "{{ user.group | default(omit) }}"
     groups: "{{ user.groups | default(omit) }}"
+    append: "{{ user.append | default(true) }}"
     uid: "{{ user.uid | default(omit) }}"
     shell: "{{ user.shell | default(omit) }}"
     state: "{{ user.state | default(omit) }}"
