@@ -1,3 +1,15 @@
+# [1.2.0](https://github.com/Nemental/ansible-collection-linux/compare/1.1.1...1.2.0) (2025-07-19)
+
+
+### Bug Fixes
+
+* **usermgmt:** add append for user creation ([4462a0c](https://github.com/Nemental/ansible-collection-linux/commit/4462a0c3aa8295d2b61bcdbbec68c1e611567d8c))
+
+
+### Features
+
+* mgmt of nfs mounts ([1d26c02](https://github.com/Nemental/ansible-collection-linux/commit/1d26c02a456dd8b6812799fecfeb3200f4c38ea4))
+
 ## [1.1.1](https://github.com/Nemental/ansible-collection-linux/compare/1.1.0...1.1.1) (2025-05-11)
 
 
