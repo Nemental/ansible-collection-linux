@@ -64,4 +64,4 @@
          if disk.mount.opts is defined
          else ('defaults,_netdev' if disk.fstype == 'nfs' else 'defaults') }}
     passno: "{{ disk.mount.passno | default(omit) }}"
-    state: mounted
+    state: "{{ disk.mount.state | default('mounted') }}"
