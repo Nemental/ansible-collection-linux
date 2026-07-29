@@ -1,0 +1,26 @@
+{{ ansible_managed | comment }}
+[Unit]
+Description={{ job.description | default('Managed by schedulemgmt: ' ~ job.name) }}
+{% for key, value in (job.unit_options | default({})).items() %}
+{% for entry in (value if value is sequence and value is not string else [value]) %}
+{{ key }}={{ entry }}
+{% endfor %}
+{% endfor %}
+
+[Service]
+Type=oneshot
+ExecStart={{ job.command }}
+{% if job.user is defined %}
+User={{ job.user }}
+{% endif %}
+{% if job.working_directory is defined %}
+WorkingDirectory={{ job.working_directory }}
+{% endif %}
+{% for key, value in (job.environment | default({})).items() %}
+Environment="{{ key }}={{ value }}"
+{% endfor %}
+{% for key, value in (job.service_options | default({})).items() %}
+{% for entry in (value if value is sequence and value is not string else [value]) %}
+{{ key }}={{ entry }}
+{% endfor %}
+{% endfor %}

@@ -1,0 +1,21 @@
+{{ ansible_managed | comment }}
+[Unit]
+Description={{ job.description | default('Managed by schedulemgmt: ' ~ job.name) }}
+
+[Timer]
+{% for entry in (job.on_calendar if job.on_calendar is sequence and job.on_calendar is not string else [job.on_calendar]) %}
+OnCalendar={{ entry }}
+{% endfor %}
+Persistent={{ job.persistent | default(false) | ternary('true', 'false') }}
+{% if job.randomized_delay is defined %}
+RandomizedDelaySec={{ job.randomized_delay }}
+{% endif %}
+Unit={{ schedulemgmt_unit_prefix }}{{ job.name }}.service
+{% for key, value in (job.timer_options | default({})).items() %}
+{% for entry in (value if value is sequence and value is not string else [value]) %}
+{{ key }}={{ entry }}
+{% endfor %}
+{% endfor %}
+
+[Install]
+WantedBy=timers.target
