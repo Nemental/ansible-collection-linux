@@ -1,0 +1,6 @@
+---
+- name: Manage scheduled jobs
+  hosts: all
+  become: true
+  roles:
+    - role: schedulemgmt
