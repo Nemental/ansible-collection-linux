@@ -1,8 +1,8 @@
 ---
 
-schedulemgmt_unit_prefix: "schedule-"
+schedulemgmt_unit_prefix: "schedulemgmt-"
 schedulemgmt_jobs: []
-# - name: backup                                  # Unit heißt schedule-backup.timer/.service
+# - name: backup                                  # Unit heißt schedulemgmt-backup.timer/.service
 #   description: "Nightly backup"
 #   command: "/usr/local/bin/backup.sh --full"    # ExecStart
 #   on_calendar: "daily"                          # String oder Liste von OnCalendar-Ausdrücken
