@@ -1,3 +1,17 @@
+# [1.3.0](https://github.com/Nemental/ansible-collection-linux/compare/1.2.0...1.3.0) (2026-07-30)
+
+
+### Bug Fixes
+
+* **diskmgmt:** mount state arg ([8828008](https://github.com/Nemental/ansible-collection-linux/commit/88280082b9d994d9fb1690067be4eb8da131c15a))
+
+
+### Features
+
+* **schedulemgmt:** add defaults and systemd unit templates ([0ca748c](https://github.com/Nemental/ansible-collection-linux/commit/0ca748c40a69a1498693ec431b400b39f461df5e))
+* **schedulemgmt:** add playbook ([053c7e3](https://github.com/Nemental/ansible-collection-linux/commit/053c7e3ca903497208da017d7c20b29c2d3b98e8))
+* **schedulemgmt:** manage systemd timers and prune orphaned units ([2791b8a](https://github.com/Nemental/ansible-collection-linux/commit/2791b8ae420474bbecb99ab292ce1c673e0b402b))
+
 # [1.2.0](https://github.com/Nemental/ansible-collection-linux/compare/1.1.1...1.2.0) (2025-07-19)
 
 
