@@ -1,0 +1,22 @@
+---
+
+schedulemgmt_unit_prefix: "schedulemgmt-"
+schedulemgmt_jobs: []
+# - name: backup                                  # Unit heißt schedulemgmt-backup.timer/.service
+#   description: "Nightly backup"
+#   command: "/usr/local/bin/backup.sh --full"    # ExecStart
+#   on_calendar: "daily"                          # String oder Liste von OnCalendar-Ausdrücken
+#   user: root
+#   working_directory: /var/backups
+#   environment:
+#     BACKUP_TARGET: /mnt/storage
+#   persistent: true                              # verpasste Läufe nachholen
+#   randomized_delay: "5m"
+#   enabled: true                                 # false => Timer gestoppt und disabled
+#   state: present                                # absent => Units werden entfernt
+#   unit_options:                                 # rohe Direktiven, Wert auch als Liste möglich
+#     After: ["network-online.target"]
+#   service_options:
+#     Nice: 10
+#   timer_options:
+#     AccuracySec: "1h"

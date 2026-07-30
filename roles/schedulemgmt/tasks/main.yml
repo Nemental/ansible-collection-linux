@@ -1,0 +1,76 @@
+---
+# Zweiteilig, weil rejectattr('state', 'eq', 'absent') auf Jobs ohne state-Key
+# einen Fehler wirft. Jobs ohne state gelten als present.
+- name: Determine wanted jobs
+  ansible.builtin.set_fact:
+    schedulemgmt_wanted: >-
+      {{ (schedulemgmt_jobs | rejectattr('state', 'defined') | list)
+         + (schedulemgmt_jobs | selectattr('state', 'defined') | rejectattr('state', 'eq', 'absent') | list) }}
+
+- name: Determine wanted unit files
+  ansible.builtin.set_fact:
+    schedulemgmt_wanted_units: >-
+      {{ schedulemgmt_wanted | map(attribute='name') | product(['.service', '.timer'])
+         | map('join') | map('regex_replace', '^', schedulemgmt_unit_prefix) | list }}
+
+- name: Find managed unit files
+  ansible.builtin.find:
+    paths: /etc/systemd/system
+    patterns:
+      - "{{ schedulemgmt_unit_prefix }}*.service"
+      - "{{ schedulemgmt_unit_prefix }}*.timer"
+  register: schedulemgmt_found
+
+- name: Determine orphaned unit files
+  ansible.builtin.set_fact:
+    schedulemgmt_orphans: >-
+      {{ schedulemgmt_found.files | map(attribute='path') | map('basename')
+         | reject('in', schedulemgmt_wanted_units) | list }}
+
+- name: Stop and disable orphaned timers
+  loop: "{{ schedulemgmt_orphans | select('search', '[.]timer$') | list }}"
+  notify: Reload systemd daemon
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+
+- name: Remove orphaned unit files
+  loop: "{{ schedulemgmt_orphans }}"
+  notify: Reload systemd daemon
+  ansible.builtin.file:
+    path: "/etc/systemd/system/{{ item }}"
+    state: absent
+
+- name: Manage service units
+  loop: "{{ schedulemgmt_wanted }}"
+  loop_control: {loop_var: job, label: "{{ job.name }}"}
+  notify: Reload systemd daemon
+  ansible.builtin.template:
+    src: service.j2
+    dest: "/etc/systemd/system/{{ schedulemgmt_unit_prefix }}{{ job.name }}.service"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Manage timer units
+  loop: "{{ schedulemgmt_wanted }}"
+  loop_control: {loop_var: job, label: "{{ job.name }}"}
+  notify: Reload systemd daemon
+  ansible.builtin.template:
+    src: timer.j2
+    dest: "/etc/systemd/system/{{ schedulemgmt_unit_prefix }}{{ job.name }}.timer"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Reload systemd before activating timers
+  ansible.builtin.meta: flush_handlers
+
+- name: Manage timer activation
+  loop: "{{ schedulemgmt_wanted }}"
+  loop_control: {loop_var: job, label: "{{ job.name }}"}
+  ansible.builtin.systemd:
+    name: "{{ schedulemgmt_unit_prefix }}{{ job.name }}.timer"
+    state: "{{ 'started' if job.enabled | default(true) else 'stopped' }}"
+    enabled: "{{ job.enabled | default(true) }}"
