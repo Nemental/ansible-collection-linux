@@ -1,0 +1,46 @@
+---
+# Nur installieren, wenn dieser Host ueberhaupt Configs verwaltet - das Modul
+# braucht das logrotate-Binary, der Orphan-Cleanup (file) dagegen nicht.
+- name: Ensure logrotate is installed
+  when:
+    - logrotatemgmt_install | default(true)
+    - logrotatemgmt_configs | length > 0
+  ansible.builtin.package:
+    name: "{{ logrotatemgmt_package }}"
+    state: present
+
+# Configs ohne state gelten als present. Zweistufig, weil rejectattr('state','eq',
+# 'absent') auf Configs ohne state-Key sonst wirft - wie schedulemgmt.
+- name: Determine wanted configs
+  ansible.builtin.set_fact:
+    logrotatemgmt_wanted: >-
+      {{ (logrotatemgmt_configs | rejectattr('state', 'defined') | list)
+         + (logrotatemgmt_configs | selectattr('state', 'defined') | rejectattr('state', 'eq', 'absent') | list) }}
+
+- name: Determine wanted config files
+  ansible.builtin.set_fact:
+    logrotatemgmt_wanted_files: >-
+      {{ logrotatemgmt_wanted | map(attribute='name')
+         | map('regex_replace', '^', logrotatemgmt_config_prefix) | list }}
+
+- name: Find managed config files
+  ansible.builtin.find:
+    paths: "{{ logrotatemgmt_config_dir }}"
+    patterns: "{{ logrotatemgmt_config_prefix }}*"
+  register: logrotatemgmt_found
+
+- name: Remove orphaned config files
+  loop: >-
+    {{ logrotatemgmt_found.files | map(attribute='path') | map('basename')
+       | reject('in', logrotatemgmt_wanted_files) | list }}
+  loop_control: {label: "{{ item }}"}
+  ansible.builtin.file:
+    path: "{{ logrotatemgmt_config_dir }}/{{ item }}"
+    state: absent
+
+- name: Manage wanted logrotate configs
+  ansible.builtin.include_tasks: config.yml
+  loop: "{{ logrotatemgmt_wanted }}"
+  loop_control:
+    loop_var: config
+    label: "{{ config.name }}"

@@ -1,0 +1,6 @@
+---
+- name: Manage rotations of log files
+  hosts: all
+  become: true
+  roles:
+    - role: logrotatemgmt

@@ -1,0 +1,24 @@
+---
+
+logrotatemgmt_install: true                      # false, wenn Pakete anderweitig verwaltet werden
+logrotatemgmt_package: logrotate
+logrotatemgmt_config_prefix: "logrotatemgmt-"   # Praefix der verwalteten Dateien in config_dir
+logrotatemgmt_config_dir: /etc/logrotate.d
+logrotatemgmt_configs: []
+# - name: traefik-access                          # Datei heisst logrotatemgmt-traefik-access
+#   paths:
+#     - /var/log/app/access.log
+#   rotation_period: daily                         # hourly|daily|weekly|monthly|yearly
+#   rotate_count: 7
+#   max_size: "500M"                               # number[k|M|G]
+#   compress: true
+#   delay_compress: true                           # wenn der Prozess die alte Datei noch offen haelt
+#   missing_ok: true
+#   not_if_empty: true
+#   date_ext: true
+#   create: "0644 root root"                       # "mode owner group"; weglassen => nocreate
+#   shared_scripts: true
+#   post_rotate:                                   # String oder Liste
+#     - "docker kill -s USR1 container 2>/dev/null || true"
+#   su: ""                                         # "user group"; weglassen => unveraendert
+#   state: present                                 # absent => Config wird entfernt
