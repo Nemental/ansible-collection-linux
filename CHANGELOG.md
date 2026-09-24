@@ -1,3 +1,15 @@
+# [1.4.0](https://github.com/Nemental/ansible-collection-linux/compare/1.3.0...1.4.0) (2026-09-24)
+
+
+### Bug Fixes
+
+* **diskmgmt:** rm recurse mode and check better fs childs ([2ea7aab](https://github.com/Nemental/ansible-collection-linux/commit/2ea7aab1ea0fd1e53af9164c91df5586601a28a3))
+
+
+### Features
+
+* **logrotatemgmt:** new role for logrotate ([9711267](https://github.com/Nemental/ansible-collection-linux/commit/9711267dc49baf6980e6da5182695a3e0c259b8a))
+
 # [1.3.0](https://github.com/Nemental/ansible-collection-linux/compare/1.2.0...1.3.0) (2026-07-30)
 
 
