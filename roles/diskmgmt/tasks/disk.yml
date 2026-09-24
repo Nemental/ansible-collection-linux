@@ -4,7 +4,6 @@
     path: "{{ disk.path }}"
     state: directory
     mode: '0755'
-    recurse: true
 
 - name: Block device handling
   when: disk.fstype != 'nfs'
@@ -14,12 +13,14 @@
       block:
         - name: Check if disk is already formatted (JSON)
           ansible.builtin.command: "lsblk -J -o NAME,FSTYPE {{ disk.device }}"
-          register: disk_info
-          changed_when: disk_info.rc != 0
+          register: diskmgmt_disk_info
+          changed_when: diskmgmt_disk_info.rc != 0
 
         - name: Set disk formatted fact
+          vars:
+            _lsblk_device: "{{ (diskmgmt_disk_info.stdout | from_json).blockdevices[0] }}"
           ansible.builtin.set_fact:
-            diskmgmt_is_formatted: "{{ (disk_info.stdout | from_json).blockdevices[0].fstype is not none }}"
+            diskmgmt_is_formatted: "{{ _lsblk_device.fstype is not none or (_lsblk_device.children | default([]) | length > 0) }}"
 
         - name: Confirm formatting of {{ disk.device }}
           ansible.builtin.pause:
