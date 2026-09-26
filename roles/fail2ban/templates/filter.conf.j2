@@ -1,0 +1,5 @@
+{{ ansible_managed | comment }}
+[Definition]
+{% for key, v in filter.value.items() %}
+{{ key }} = {{ (v if v is sequence and v is not string else [v]) | join('\n    ') }}
+{% endfor %}

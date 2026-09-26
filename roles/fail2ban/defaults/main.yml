@@ -1,0 +1,25 @@
+---
+
+fail2ban_packages: [fail2ban, ipset, python3-systemd]
+fail2ban_ignoreip: ["127.0.0.1/8", "::1"]
+fail2ban_log_only: false                     # true => banaction(_allports) = dummy, Bans nur protokolliert
+fail2ban_default: {}                         # weitere [DEFAULT]-Optionen
+#   bantime.increment: true
+#   banaction_allports: iptables-ipset-proto6-allports
+fail2ban_filter_prefix: "managed-"           # Praefix der verwalteten Dateien in filter.d
+fail2ban_filters: {}
+#   traefik-scanner:                          # Datei heisst managed-traefik-scanner.conf
+#     failregex: '^\{"ClientAddr":"[^"]*","ClientHost":"<HOST>".*"RouterName":"scanner-deny@file"'
+#     datepattern: '"StartUTC":"%%Y-%%m-%%dT%%H:%%M:%%S'
+fail2ban_jails: []                           # leer => Rolle tut nichts
+# - name: traefik-scanner
+#   enabled: true                             # Default true
+#   filter: managed-traefik-scanner
+#   logpath: /var/log/traefik/access.log
+#   maxretry: 2
+#   findtime: 10m
+#   bantime: 24h
+#   action:                                   # String oder Liste; Liste => mehrzeiliger Wert
+#     - "%(banaction_allports)s[name=scanner, chain=INPUT, protocol=all, actname=input]"
+fail2ban_systemd_after: []                   # z.B. [docker.service], wenn Actions DOCKER-USER nutzen
+fail2ban_textfile_dir: ""                    # gesetzt => /usr/local/sbin/fail2ban-textfile fuer node-exporter

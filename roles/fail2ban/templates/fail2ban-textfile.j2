@@ -1,0 +1,30 @@
+#!/bin/sh
+{{ ansible_managed | comment }}
+# Schreibt fail2ban-Kennzahlen fuer den node-exporter-Textfile-Collector.
+# Laeuft als root (Socket-Zugriff), node-exporter liest die Datei nur.
+set -eu
+
+out="{{ fail2ban_textfile_dir }}/fail2ban.prom"
+tmp="$out.$$"
+
+{
+  echo "# TYPE fail2ban_jail_banned_total counter"
+  echo "# TYPE fail2ban_jail_failed_total counter"
+  if fail2ban-client ping >/dev/null 2>&1; then
+    echo "fail2ban_up 1"
+    jails=$(fail2ban-client status | sed -n 's/.*Jail list:[[:space:]]*//p' | tr ',' ' ')
+    for jail in $jails; do
+      fail2ban-client status "$jail" | awk -v jail="$jail" -F':[[:space:]]*' '
+        /Currently failed/ { print "fail2ban_jail_failed_current{jail=\"" jail "\"} " $2 }
+        /Total failed/     { print "fail2ban_jail_failed_total{jail=\"" jail "\"} " $2 }
+        /Currently banned/ { print "fail2ban_jail_banned_current{jail=\"" jail "\"} " $2 }
+        /Total banned/     { print "fail2ban_jail_banned_total{jail=\"" jail "\"} " $2 }'
+    done
+  else
+    echo "fail2ban_up 0"
+  fi
+  echo "fail2ban_scrape_timestamp_seconds $(date +%s)"
+} > "$tmp"
+
+chmod 0644 "$tmp"
+mv "$tmp" "$out"

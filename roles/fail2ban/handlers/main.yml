@@ -1,0 +1,9 @@
+---
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Reload fail2ban
+  ansible.builtin.systemd:
+    name: fail2ban
+    state: reloaded

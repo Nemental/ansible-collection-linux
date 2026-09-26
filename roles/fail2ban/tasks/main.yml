@@ -1,0 +1,88 @@
+---
+- name: Manage fail2ban
+  when: fail2ban_jails | length > 0
+  block:
+    # Config vor dem Paket: Debian 12 startet fail2ban beim Install sofort, und der
+    # mitgelieferte sshd-Jail scheitert ohne /var/log/auth.log.
+    - name: Ensure config directories exist
+      loop: [/etc/fail2ban/jail.d, /etc/fail2ban/filter.d, /etc/systemd/system/fail2ban.service.d]
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Manage jail config
+      notify: Reload fail2ban
+      ansible.builtin.template:
+        src: jail.local.j2
+        dest: /etc/fail2ban/jail.d/managed.local
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Find managed filters
+      ansible.builtin.find:
+        paths: /etc/fail2ban/filter.d
+        patterns: "{{ fail2ban_filter_prefix }}*.conf"
+      register: fail2ban_found
+
+    - name: Remove orphaned filters
+      loop: >-
+        {{ fail2ban_found.files | map(attribute='path') | map('basename')
+           | reject('in', fail2ban_filters.keys() | map('regex_replace', '^(.*)$', fail2ban_filter_prefix ~ '\1.conf') | list)
+           | list }}
+      notify: Reload fail2ban
+      ansible.builtin.file:
+        path: "/etc/fail2ban/filter.d/{{ item }}"
+        state: absent
+
+    - name: Manage filters
+      loop: "{{ fail2ban_filters | dict2items }}"
+      loop_control: {loop_var: filter, label: "{{ filter.key }}"}
+      notify: Reload fail2ban
+      ansible.builtin.template:
+        src: filter.conf.j2
+        dest: "/etc/fail2ban/filter.d/{{ fail2ban_filter_prefix }}{{ filter.key }}.conf"
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Manage systemd ordering
+      notify: Reload systemd daemon
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/fail2ban.service.d/after.conf
+        content: |
+          [Unit]
+          {% for unit in fail2ban_systemd_after %}
+          After={{ unit }}
+          {% endfor %}
+        owner: root
+        group: root
+        mode: '0644'
+      when: fail2ban_systemd_after | length > 0
+
+    - name: Ensure packages are installed
+      ansible.builtin.package:
+        name: "{{ fail2ban_packages }}"
+        state: present
+
+    - name: Validate config
+      ansible.builtin.command: fail2ban-client -t
+      changed_when: false
+
+    - name: Ensure fail2ban is running
+      ansible.builtin.systemd:
+        name: fail2ban
+        state: started
+        enabled: true
+
+    - name: Manage textfile exporter
+      ansible.builtin.template:
+        src: fail2ban-textfile.j2
+        dest: /usr/local/sbin/fail2ban-textfile
+        owner: root
+        group: root
+        mode: '0755'
+      when: fail2ban_textfile_dir | length > 0

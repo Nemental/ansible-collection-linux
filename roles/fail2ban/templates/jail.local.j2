@@ -1,0 +1,18 @@
+{{ ansible_managed | comment }}
+{% macro value(v) -%}
+{{ (v if v is sequence and v is not string else [v]) | join('\n    ') }}
+{%- endmacro %}
+[DEFAULT]
+ignoreip = {{ fail2ban_ignoreip | join(' ') }}
+{% set log_only = {'banaction': 'dummy', 'banaction_allports': 'dummy'} if fail2ban_log_only else {} %}
+{% for key, v in (fail2ban_default | combine(log_only)).items() %}
+{{ key }} = {{ value(v) }}
+{% endfor %}
+{% for jail in fail2ban_jails %}
+
+[{{ jail.name }}]
+enabled = {{ jail.enabled | default(true) | ternary('true', 'false') }}
+{% for key, v in jail.items() if key not in ['name', 'enabled'] %}
+{{ key }} = {{ value(v) }}
+{% endfor %}
+{% endfor %}
