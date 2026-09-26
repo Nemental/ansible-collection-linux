@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/Nemental/ansible-collection-linux/compare/1.4.0...1.5.0) (2026-09-26)
+
+
+### Features
+
+* **fail2ban:** new role for fail2ban ([c8a4362](https://github.com/Nemental/ansible-collection-linux/commit/c8a436286eb6b1ce1b86c5da8e0e0b2b46ed62b7))
+
 # [1.4.0](https://github.com/Nemental/ansible-collection-linux/compare/1.3.0...1.4.0) (2026-09-24)
 
 
